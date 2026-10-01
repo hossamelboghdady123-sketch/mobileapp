@@ -9,9 +9,7 @@ steps:
       echo "=== TaskFlow CI ==="
       echo "Host: $(hostname)"
       echo "User: $(whoami)"
-      echo "Java:"
       java -version
-      echo "Maven:"
       mvn -version
     displayName: "Environment Check"
 
@@ -20,6 +18,13 @@ steps:
       mvn clean package -DskipTests
     displayName: "Build Backend"
 
-  - script: |
-      docker build -t taskflow-api:$(Build.BuildId) backend/taskflow-api
-    displayName: "Build Docker Image"
+  - task: Docker@2
+    displayName: "Build and Push Docker Image"
+    inputs:
+      command: buildAndPush
+      containerRegistry: docker
+      repository: hossam789/taskflow-api
+      Dockerfile: backend/taskflow-api/Dockerfile
+      tags: |
+        $(Build.BuildId)
+        latest
