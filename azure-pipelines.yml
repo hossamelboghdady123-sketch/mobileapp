@@ -1,0 +1,25 @@
+trigger:
+  - main
+
+pool:
+  name: Default
+
+steps:
+  - script: |
+      echo "=== TaskFlow CI ==="
+      echo "Host: $(hostname)"
+      echo "User: $(whoami)"
+      echo "Java:"
+      java -version
+      echo "Maven:"
+      mvn -version
+    displayName: "Environment Check"
+
+  - script: |
+      cd backend/taskflow-api
+      mvn clean package -DskipTests
+    displayName: "Build Backend"
+
+  - script: |
+      docker build -t taskflow-api:$(Build.BuildId) backend/taskflow-api
+    displayName: "Build Docker Image"
