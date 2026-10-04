@@ -1,0 +1,6 @@
+
+# Database backups
+database/*.sql
+
+# Kubernetes secrets
+kubernetes/*secret*.yaml

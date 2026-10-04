@@ -6,17 +6,17 @@ pool:
 
 steps:
   - script: |
-      echo "=== TaskFlow CI ==="
-      echo "Host: $(hostname)"
-      echo "User: $(whoami)"
+      echo "=== TaskFlow CI/CD ==="
       java -version
       mvn -version
-    displayName: "Environment Check"
+      kubectl get nodes
+      helm list
+    displayName: "Check Build Environment and EKS"
 
   - script: |
       cd backend/taskflow-api
       mvn clean package -DskipTests
-    displayName: "Build Backend"
+    displayName: "Build Spring Boot Backend"
 
   - task: Docker@2
     displayName: "Build and Push Docker Image"
@@ -28,3 +28,22 @@ steps:
       tags: |
         $(Build.BuildId)
         latest
+
+  - script: |
+      set -e
+
+      echo "=== Deploying TaskFlow to EKS ==="
+
+      helm upgrade --install taskflow ./helm/taskflow \
+        --namespace default \
+        --set image.tag=$(Build.BuildId) \
+        --wait \
+        --timeout 5m
+
+      kubectl rollout status deployment/taskflow-api \
+        --namespace default \
+        --timeout=180s
+
+      kubectl get pods -l app=taskflow-api
+      kubectl get svc taskflow-api
+    displayName: "Deploy to AWS EKS with Helm"

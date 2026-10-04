@@ -1,0 +1,16 @@
+replicaCount: 2
+
+image:
+  repository: hossam789/taskflow-api
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 8080
+
+postgres:
+  image: postgres:16
+  database: taskflow
+  username: taskflow
+  password: taskflow_dev_password
