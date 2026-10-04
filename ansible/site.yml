@@ -1,0 +1,60 @@
+---
+- name: Validate TaskFlow DevOps environment
+  hosts: local
+  become: true
+  gather_facts: true
+
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/bin"
+
+  vars:
+    devops_tools:
+      - git
+      - docker
+      - kubectl
+      - helm
+
+  tasks:
+    - name: Check required DevOps tools
+      ansible.builtin.command:
+        cmd: "command -v {{ item }}"
+      loop: "{{ devops_tools }}"
+      register: tool_check
+      changed_when: false
+
+    - name: Display installed DevOps tools
+      ansible.builtin.debug:
+        msg: "{{ item.item }}: {{ item.stdout }}"
+      loop: "{{ tool_check.results }}"
+
+    - name: Get Git version
+      ansible.builtin.command: git --version
+      register: git_version
+      changed_when: false
+
+    - name: Get Docker version
+      ansible.builtin.command: docker --version
+      register: docker_version
+      changed_when: false
+
+    - name: Get kubectl version
+      ansible.builtin.command: kubectl version --client
+      register: kubectl_version
+      changed_when: false
+
+    - name: Get Helm version
+      ansible.builtin.command: helm version
+      register: helm_version
+      changed_when: false
+
+    - name: Display DevOps tool versions
+      ansible.builtin.debug:
+        msg:
+          - "{{ git_version.stdout }}"
+          - "{{ docker_version.stdout }}"
+          - "{{ kubectl_version.stdout }}"
+          - "{{ helm_version.stdout }}"
+
+    - name: Display operating system
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} {{ ansible_distribution_version }}"
