@@ -1,6 +1,4 @@
-
-# Database backups
-database/*.sql
-
-# Kubernetes secrets
-kubernetes/*secret*.yaml
+# Terraform
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
